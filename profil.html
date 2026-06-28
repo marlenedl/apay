@@ -66,7 +66,26 @@
     </div>
   </main>
 
-  <script>
+   <script>
+    // --- Fonction d'ouverture/fermeture du Slide Menu ---
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar-menu');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if(sidebar.classList.contains('-translate-x-full')) {
+        // Ouvrir
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+      } else {
+        // Fermer
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    // --- Configuration Firebase ---
     const firebaseConfig = { apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc", authDomain: "lastone-2ef2f.firebaseapp.com", projectId: "lastone-2ef2f", storageBucket: "lastone-2ef2f.firebasestorage.app", messagingSenderId: "983919060318", appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();

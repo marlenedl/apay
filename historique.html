@@ -52,6 +52,29 @@
   </main>
 
   <script>
+    // --- Fonction Slide Menu ---
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar-menu');
+      const overlay = document.getElementById('sidebar-overlay');
+      const burger = document.querySelector('[aria-expanded]');
+      const isClosed = sidebar.classList.contains('-translate-x-full');
+      
+      if (isClosed) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.setAttribute('aria-hidden', 'false');
+        burger.setAttribute('aria-expanded', 'true');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        sidebar.setAttribute('aria-hidden', 'true');
+        burger.setAttribute('aria-expanded', 'false');
+        overlay.classList.replace('opacity-100', 'opacity-0');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    // --- Firebase ---
     const firebaseConfig = { apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc", authDomain: "lastone-2ef2f.firebaseapp.com", projectId: "lastone-2ef2f", storageBucket: "lastone-2ef2f.firebasestorage.app", messagingSenderId: "983919060318", appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
