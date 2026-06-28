@@ -1,120 +1,132 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APAY - Confirmation Virement</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
-
-  <!-- Bouton Burger (Mobile) -->
-  <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
-    <div class="flex items-center space-x-2">
-      <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"><i class="fa-solid fa-feather-pointed"></i></div>
-      <span class="tracking-tight text-slate-900 font-bold">APAY</span>
-    </div>
-    <button onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar-menu" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
-      <i class="fa-solid fa-bars"></i>
-    </button>
-  </div>
-
-  <!-- Overlay -->
-  <div id="sidebar-overlay" onclick="toggleMenu()" 
-       class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0">
-  </div>
-
-  <!-- Slide Menu -->
-  <aside id="sidebar-menu" aria-hidden="true"
-         class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
-    <div>
-      <div class="flex items-center justify-between md:justify-start space-x-2 text-blue-600 font-bold text-2xl mb-8">
-        <div class="flex items-center space-x-2">
-          <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg"><i class="fa-solid fa-feather-pointed"></i></div>
-          <span class="tracking-tight text-slate-900">APAY</span>
-        </div>
-        <button onclick="toggleMenu()" class="md:hidden text-slate-400 hover:text-slate-600">
-          <i class="fa-solid fa-xmark text-xl"></i>
-        </button>
-      </div>
-      <nav class="space-y-1">
-        <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span></a>
-        <a href="virement.html" class="flex items-center space-x-3 bg-blue-50 text-blue-600 p-3 rounded-xl font-medium transition"><i class="fa-solid fa-paper-plane w-5"></i><span>Faire un virement</span></a>
-        <a href="historique.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-clock-rotate-left w-5"></i><span>Historique</span></a>
-        <a href="mes-cartes.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-credit-card w-5"></i><span>Mes cartes</span></a>
-        <a href="profil.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-circle-user w-5"></i><span>Mon Profil</span></a>
-      </nav>
-    </div>
-    <div class="mt-8 pt-4 border-t border-slate-100">
-      <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i><span>Déconnexion</span></button>
-    </div>
-  </aside>
-
-  <!-- Contenu principal -->
-  <main class="flex-1 p-6 md:p-10 max-w-2xl mx-auto w-full space-y-6">
-    <header class="text-center space-y-2">
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-900">✅ Virement confirmé</h2>
-      <p class="text-slate-500 text-sm">Votre opération a été enregistrée avec succès.</p>
-    </header>
-
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
-      <div class="flex items-center justify-between">
-        <span class="text-slate-500 text-sm font-medium">Nom du bénéficiaire</span>
-        <span id="confirm-beneficiary" class="text-slate-900 font-semibold">Chargement...</span>
-      </div>
-      <div class="flex items-center justify-between">
-        <span class="text-slate-500 text-sm font-medium">Montant</span>
-        <span id="confirm-amount" class="text-blue-600 font-bold">Chargement...</span>
-      </div>
-      <div class="flex items-center justify-between">
-        <span class="text-slate-500 text-sm font-medium">Banque</span>
-        <span id="confirm-bank" class="text-slate-900 font-semibold">Chargement...</span>
-      </div>
-    </div>
-
-    <div class="text-center">
-      <a href="historique.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition">Voir l’historique</a>
-    </div>
-  </main>
-
-  <script>
-    // --- Fonction Slide Menu ---
-    function toggleMenu() {
-      const sidebar = document.getElementById('sidebar-menu');
-      const overlay = document.getElementById('sidebar-overlay');
-      const burger = document.querySelector('[aria-expanded]');
-      const isClosed = sidebar.classList.contains('-translate-x-full');
-      
-      if (isClosed) {
-        sidebar.classList.remove('-translate-x-full');
-        sidebar.setAttribute('aria-hidden', 'false');
-        burger.setAttribute('aria-expanded', 'true');
-        overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
-      } else {
-        sidebar.classList.add('-translate-x-full');
-        sidebar.setAttribute('aria-hidden', 'true');
-        burger.setAttribute('aria-expanded', 'false');
-        overlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
-      }
-    }
-
-    // Récupération des infos du dernier virement depuis localStorage (ou Firestore si tu veux)
-    const lastTransaction = JSON.parse(localStorage.getItem('lastTransaction'));
-    if (lastTransaction) {
-      document.getElementById('confirm-beneficiary').textContent = lastTransaction.beneficiaryName;
-      document.getElementById('confirm-amount').textContent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Math.abs(lastTransaction.amount));
-      document.getElementById('confirm-bank').textContent = lastTransaction.bankName;
-    }
-
-    function logout() {
-      localStorage.removeItem('currentUserId');
-      window.location.href = "index.html";
-    }
-  </script>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="shortcut icon" href="https://lh3.googleusercontent.com/48IHZd1EHIk-Dg1m6J36FZ6Pnlz0oLHVdqkzNdS8xJPCVdQk3EgZa014nPNzwi7o918" />
+  <title>Virement Confirmé</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .success-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #e6ffe6;
+      border-left: 5px solid #4CAF50;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .success-card h2 { color: #4CAF50; margin-bottom: 15px; }
+    .error-sync { background: #ffe6e6; border-left-color: #d9534f; }
+    .error-sync h2 { color: #d9534f; }
+  </style>
+</head>
+<body>
+<header>
+  <h1><img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Ecobank Logo" height="100"></h1>
+</header>
+
+<div class="full-container">
+  <main class="main" style="text-align: center; padding: 50px;">
+    <div id="confirmation-card" class="success-card">
+      <h2>✅ Virement Enregistré et Confirmé !</h2>
+      <p>Votre ordre de virement a été transmis. Une attestation de virement a été envoyée à l’adresse mail fournie.</p>
+
+      <p style="font-size: 1.2em; font-weight: bold; margin: 20px 0;">
+        Montant traité : <span id="montant-traite" style="color: #d9534f;">...</span>
+      </p>
+
+      <div id="details"></div>
+
+      <p id="sync-message">Le solde de votre compte est en cours d'ajustement...</p>
+
+      <a href="dashboard.html" class="btn-primary" style="margin-top: 30px; background: #004b91;">Retour à l'accueil</a>
+    </div>
+  </main>
+</div>
+
+<footer>
+  Mentions légales – Sécurité – Accessibilité – Plan du site
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="shared.js"></script>
+<script>
+// Assure la connexion
+checkLogin();
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const card = document.getElementById('confirmation-card');
+  const montantDisplay = document.getElementById('montant-traite');
+  const syncMessage = document.getElementById('sync-message');
+  const details = document.getElementById('details');
+
+  // Récupération des paramètres de l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const montantParam = urlParams.get('montant');
+  const motif = urlParams.get('motif');
+  const iban = urlParams.get('iban');
+  const bic = urlParams.get('bic');
+  const domiciliation = urlParams.get('domiciliation');
+  const userName = urlParams.get('user_name');
+  const userEmail = urlParams.get('user_email');
+  const dateParam = urlParams.get('date');
+
+  // Vérification du montant
+  if (!montantParam || isNaN(parseFloat(montantParam))) {
+    card.classList.add('error-sync');
+    card.querySelector('h2').textContent = "❌ Synchronisation Échouée";
+    montantDisplay.textContent = "Montant inconnu ou invalide.";
+    syncMessage.textContent = "Erreur: Le montant du virement n'a pas été transmis par le formulaire.";
+    return;
+  }
+
+  // Affichage des détails du virement
+  const montantNum = parseFloat(montantParam);
+  montantDisplay.textContent = formatCurrency(montantNum);
+  details.innerHTML = `
+    <p><strong>Motif :</strong> ${motif || '-'}</p>
+    <p><strong>IBAN :</strong> ${iban || '-'}</p>
+    <p><strong>BIC :</strong> ${bic || '-'}</p>
+    <p><strong>Domiciliation :</strong> ${domiciliation || '-'}</p>
+    <p><strong>Nom :</strong> ${userName || '-'}</p>
+    <p><strong>Email :</strong> ${userEmail || '-'}</p>
+    <p><strong>Date :</strong> ${dateParam || new Date().toLocaleDateString('fr-FR')}</p>
+  `;
+
+  try {
+    // Récupération utilisateur
+    const user = await getAndSetCurrentUser();
+    if (!user) throw new Error("Utilisateur non connecté ou non trouvé.");
+
+    // Calcul nouveau solde
+    const nouveauSolde = parseFloat((user.solde - montantNum).toFixed(2));
+    if (nouveauSolde < 0) throw new Error("Solde insuffisant pour ce virement.");
+
+    user.solde = nouveauSolde;
+
+    // Historique (antéchronologique)
+    if (!user.historique) user.historique = [];
+    user.historique.unshift({
+      date: new Date().toLocaleString('fr-FR'),
+      libelle: `Virement vers ${domiciliation || 'Bénéficiaire'}`,
+      montant: -montantNum,
+      type: 'debit'
+    });
+
+    // Sauvegarde
+    await updateCurrentUser(user);
+
+    syncMessage.textContent = `Le montant de ${formatCurrency(montantNum)} a été débité. Nouveau solde : ${formatCurrency(user.solde)}.`;
+
+  } catch (e) {
+    card.classList.remove('success-card');
+    card.classList.add('error-sync');
+    card.querySelector('h2').textContent = "❌ Transaction Échouée";
+    syncMessage.textContent = "Erreur: Le débit n'a pas été effectué. Raison : " + e.message;
+  }
+});
+</script>
+</body>
+</html>
