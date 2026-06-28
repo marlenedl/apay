@@ -3,232 +3,118 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APAY - Confirmation de virement</title>
+  <title>APAY - Confirmation Virement</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
+  <!-- Bouton Burger (Mobile) -->
   <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center space-x-2">
-      <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-6">
+      <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"><i class="fa-solid fa-feather-pointed"></i></div>
+      <span class="tracking-tight text-slate-900 font-bold">APAY</span>
     </div>
-    <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
-      <i class="fa-solid fa-bars" id="burger-icon"></i>
+    <button onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar-menu" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
+      <i class="fa-solid fa-bars"></i>
     </button>
   </div>
 
-  <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0"></div>
+  <!-- Overlay -->
+  <div id="sidebar-overlay" onclick="toggleMenu()" 
+       class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0">
+  </div>
 
-  <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
+  <!-- Slide Menu -->
+  <aside id="sidebar-menu" aria-hidden="true"
+         class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
     <div>
       <div class="flex items-center justify-between md:justify-start space-x-2 text-blue-600 font-bold text-2xl mb-8">
         <div class="flex items-center space-x-2">
-          <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg shadow-sm">
-            <i class="fa-solid fa-wallet text-sm"></i>
-          </div>
-          <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-7">
+          <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg"><i class="fa-solid fa-feather-pointed"></i></div>
+          <span class="tracking-tight text-slate-900">APAY</span>
         </div>
         <button onclick="toggleMenu()" class="md:hidden text-slate-400 hover:text-slate-600">
           <i class="fa-solid fa-xmark text-xl"></i>
         </button>
       </div>
-      
       <nav class="space-y-1">
-        <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-chart-pie w-5 text-lg"></i>
-          <span>Dashboard</span>
-        </a>
-        <a href="virement.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-paper-plane w-5"></i>
-          <span>Faire un virement</span>
-        </a>
-        <a href="ajouter-beneficiaire.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-user-plus w-5"></i>
-          <span>Bénéficiaires</span>
-        </a>
-        <a href="historique.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-clock-rotate-left w-5"></i>
-          <span>Historique</span>
-        </a>
-        <a href="mes-cartes.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-credit-card w-5"></i>
-          <span>Mes cartes</span>
-        </a>
-        <a href="rib.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-building-columns w-5"></i>
-          <span>Mon RIB</span>
-        </a>
-        <a href="profil.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-circle-user w-5"></i>
-          <span>Mon Profil</span>
-        </a>
+        <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span></a>
+        <a href="virement.html" class="flex items-center space-x-3 bg-blue-50 text-blue-600 p-3 rounded-xl font-medium transition"><i class="fa-solid fa-paper-plane w-5"></i><span>Faire un virement</span></a>
+        <a href="historique.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-clock-rotate-left w-5"></i><span>Historique</span></a>
+        <a href="mes-cartes.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-credit-card w-5"></i><span>Mes cartes</span></a>
+        <a href="profil.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-circle-user w-5"></i><span>Mon Profil</span></a>
       </nav>
     </div>
-
-    <div class="mt-8 pt-4 border-t border-slate-100 space-y-4">
-      <div class="bg-slate-50 p-3 rounded-xl flex items-center space-x-3">
-        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-          <i class="fa-solid fa-headset text-sm"></i>
-        </div>
-        <div class="truncate">
-          <p class="text-xs text-slate-400 font-medium">Mon Conseiller</p>
-          <p id="sidebar-advisor" class="text-xs font-semibold text-slate-700 truncate">Chargement...</p>
-        </div>
-      </div>
-      <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left">
-        <i class="fa-solid fa-arrow-right-from-bracket w-5"></i>
-        <span>Déconnexion</span>
-      </button>
+    <div class="mt-8 pt-4 border-t border-slate-100">
+      <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i><span>Déconnexion</span></button>
     </div>
   </aside>
 
-  <main class="flex-1 p-4 md:p-8 max-w-xl mx-auto w-full flex flex-col justify-center items-center">
-    
-    <div id="status-icon-container" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs">
-      <i id="status-icon" class="fa-solid fa-circle-check"></i>
-    </div>
+  <!-- Contenu principal -->
+  <main class="flex-1 p-6 md:p-10 max-w-2xl mx-auto w-full space-y-6">
+    <header class="text-center space-y-2">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900">✅ Virement confirmé</h2>
+      <p class="text-slate-500 text-sm">Votre opération a été enregistrée avec succès.</p>
+    </header>
 
-    <h1 id="status-title" class="text-2xl font-bold text-slate-900 text-center tracking-tight">✅ Virement Enregistré et Confirmé !</h1>
-    <p id="status-subtitle" class="text-slate-500 text-sm text-center mt-1">Votre ordre de virement a été transmis. Une attestation a été envoyée par mail.</p>
-
-    <div id="confirmation-card" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm w-full mt-6 space-y-5 relative overflow-hidden">
-      <div id="card-accent" class="absolute top-0 inset-x-0 h-1.5 bg-emerald-500"></div>
-      
-      <div class="text-center py-2">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Montant traité</span>
-        <h2 class="text-3xl font-bold text-red-500 mt-1" id="montant-traite">... €</h2>
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between">
+        <span class="text-slate-500 text-sm font-medium">Nom du bénéficiaire</span>
+        <span id="confirm-beneficiary" class="text-slate-900 font-semibold">Chargement...</span>
       </div>
-
-      <div id="details" class="border-t border-dashed border-slate-200 pt-4 space-y-3">
-        </div>
-
-      <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
-        <p id="sync-message" class="text-xs font-medium text-slate-500">Le solde de votre compte est en cours d'ajustement...</p>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-500 text-sm font-medium">Montant</span>
+        <span id="confirm-amount" class="text-blue-600 font-bold">Chargement...</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span class="text-slate-500 text-sm font-medium">Banque</span>
+        <span id="confirm-bank" class="text-slate-900 font-semibold">Chargement...</span>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
-      <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2 shadow-xs">
-        <i class="fa-solid fa-chart-pie"></i>
-        <span>Aller à mes comptes</span>
-      </a>
-      <a href="historique.html" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        <span>Voir l'historique</span>
-      </a>
+    <div class="text-center">
+      <a href="historique.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition">Voir l’historique</a>
     </div>
-
-    <footer class="text-center text-xs text-slate-400 mt-8">
-      Mentions légales – Sécurité – Accessibilité – Plan du site
-    </footer>
-
   </main>
 
   <script>
-    // --- Fonction d'ouverture/fermeture du Slide Menu ---
+    // --- Fonction Slide Menu ---
     function toggleMenu() {
       const sidebar = document.getElementById('sidebar-menu');
       const overlay = document.getElementById('sidebar-overlay');
-      if(sidebar.classList.contains('-translate-x-full')) {
+      const burger = document.querySelector('[aria-expanded]');
+      const isClosed = sidebar.classList.contains('-translate-x-full');
+      
+      if (isClosed) {
         sidebar.classList.remove('-translate-x-full');
+        sidebar.setAttribute('aria-hidden', 'false');
+        burger.setAttribute('aria-expanded', 'true');
         overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+        setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
       } else {
         sidebar.classList.add('-translate-x-full');
-        overlay.classList.remove('opacity-100');
+        sidebar.setAttribute('aria-hidden', 'true');
+        burger.setAttribute('aria-expanded', 'false');
+        overlay.classList.replace('opacity-100', 'opacity-0');
         setTimeout(() => overlay.classList.add('hidden'), 300);
       }
     }
 
-    // --- Configuration Firebase ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc",
-      authDomain: "lastone-2ef2f.firebaseapp.com",
-      projectId: "lastone-2ef2f",
-      storageBucket: "lastone-2ef2f.firebasestorage.app",
-      messagingSenderId: "983919060318",
-      appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const currentUserId = localStorage.getItem('currentUserId');
-    if (!currentUserId) window.location.href = "index.html";
-
-    // Formatage monétaire local
-    function formatCurrency(amount) {
-      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    // Récupération des infos du dernier virement depuis localStorage (ou Firestore si tu veux)
+    const lastTransaction = JSON.parse(localStorage.getItem('lastTransaction'));
+    if (lastTransaction) {
+      document.getElementById('confirm-beneficiary').textContent = lastTransaction.beneficiaryName;
+      document.getElementById('confirm-amount').textContent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Math.abs(lastTransaction.amount));
+      document.getElementById('confirm-bank').textContent = lastTransaction.bankName;
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      const montantDisplay = document.getElementById('montant-traite');
-      const syncMessage = document.getElementById('sync-message');
-      const detailsContainer = document.getElementById('details');
-
-      // Récupération des paramètres de l'URL transmis par le formulaire de virement
-      const urlParams = new URLSearchParams(window.location.search);
-      const montantParam = urlParams.get('montant');
-      const motif = urlParams.get('motif');
-      const iban = urlParams.get('iban');
-      const bic = urlParams.get('bic');
-      const domiciliation = urlParams.get('domiciliation');
-      const userName = urlParams.get('user_name');
-      const userEmail = urlParams.get('user_email');
-      const dateParam = urlParams.get('date');
-
-      // Charger les données de la barre latérale (Conseiller)
-      db.collection("users").doc(currentUserId).get().then((doc) => {
-        if(doc.exists) {
-          document.getElementById('sidebar-advisor').textContent = doc.data().advisor || 'Conseiller APAY';
-        }
-      });
-
-      // 1. Vérification stricte du montant reçu
-      if (!montantParam || isNaN(parseFloat(montantParam))) {
-        setErrorState("❌ Synchronisation Échouée", "Erreur: Le montant du virement n'a pas été transmis correctement par le formulaire.");
-        montantDisplay.textContent = "Inconnu";
-        return;
-      }
-
-      const montantNum = parseFloat(montantParam);
-      montantDisplay.textContent = formatCurrency(montantNum);
-
-      // 2. Injection et affichage stylisé des données
-      detailsContainer.innerHTML = `
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Bénéficiaire</span><span class="text-slate-800 font-semibold text-right">${userName || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Banque</span><span class="text-slate-800 font-semibold text-right">${domiciliation || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">IBAN</span><span class="text-slate-600 font-mono tracking-tighter text-right uppercase">${iban || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">BIC</span><span class="text-slate-600 font-mono text-right uppercase">${bic || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Motif</span><span class="text-slate-800 font-semibold text-right">${motif || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Email Contact</span><span class="text-slate-800 text-right text-xs">${userEmail || '-'}</span></div>
-        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Date d'effet</span><span class="text-slate-800 font-semibold text-right">${dateParam || new Date().toLocaleDateString('fr-FR')}</span></div>
-      `;
-
-      // 3. Mise à jour ou confirmation du statut de synchronisation
-      try {
-        syncMessage.innerHTML = `<i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> Le montant de ${formatCurrency(montantNum)} a été traité avec succès sur votre compte.`;
-      } catch (e) {
-        setErrorState("❌ Transaction Échouée", "Le débit n'a pas pu être validé. Raison : " + e.message);
-      }
-    });
-
-    // Fonction d'affichage en cas d'erreur
-    function setErrorState(title, message) {
-      document.getElementById('status-title').textContent = title;
-      document.getElementById('status-subtitle').textContent = "Veuillez vérifier les informations saisies ou contacter votre conseiller.";
-      document.getElementById('status-icon-container').className = "w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs";
-      document.getElementById('status-icon').className = "fa-solid fa-circle-xmark";
-      document.getElementById('card-accent').className = "absolute top-0 inset-x-0 h-1.5 bg-rose-500";
-      document.getElementById('sync-message').className = "text-xs font-semibold text-rose-600";
-      document.getElementById('sync-message').textContent = message;
+    function logout() {
+      localStorage.removeItem('currentUserId');
+      window.location.href = "index.html";
     }
-
-    function logout() { localStorage.removeItem('currentUserId'); window.location.href = "index.html"; }
   </script>
 </body>
 </html>
