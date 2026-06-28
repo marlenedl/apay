@@ -1,132 +1,234 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="shortcut icon" href="https://lh3.googleusercontent.com/48IHZd1EHIk-Dg1m6J36FZ6Pnlz0oLHVdqkzNdS8xJPCVdQk3EgZa014nPNzwi7o918" />
-  <title>Virement Confirmé</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    .success-card {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #e6ffe6;
-      border-left: 5px solid #4CAF50;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .success-card h2 { color: #4CAF50; margin-bottom: 15px; }
-    .error-sync { background: #ffe6e6; border-left-color: #d9534f; }
-    .error-sync h2 { color: #d9534f; }
-  </style>
-</head>
-<body>
-<header>
-  <h1><img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Ecobank Logo" height="100"></h1>
-</header>
-
-<div class="full-container">
-  <main class="main" style="text-align: center; padding: 50px;">
-    <div id="confirmation-card" class="success-card">
-      <h2>✅ Virement Enregistré et Confirmé !</h2>
-      <p>Votre ordre de virement a été transmis. Une attestation de virement a été envoyée à l’adresse mail fournie.</p>
-
-      <p style="font-size: 1.2em; font-weight: bold; margin: 20px 0;">
-        Montant traité : <span id="montant-traite" style="color: #d9534f;">...</span>
-      </p>
-
-      <div id="details"></div>
-
-      <p id="sync-message">Le solde de votre compte est en cours d'ajustement...</p>
-
-      <a href="dashboard.html" class="btn-primary" style="margin-top: 30px; background: #004b91;">Retour à l'accueil</a>
-    </div>
-  </main>
-</div>
-
-<footer>
-  Mentions légales – Sécurité – Accessibilité – Plan du site
-</footer>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="shared.js"></script>
-<script>
-// Assure la connexion
-checkLogin();
-
-document.addEventListener('DOMContentLoaded', async () => {
-  const card = document.getElementById('confirmation-card');
-  const montantDisplay = document.getElementById('montant-traite');
-  const syncMessage = document.getElementById('sync-message');
-  const details = document.getElementById('details');
-
-  // Récupération des paramètres de l'URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const montantParam = urlParams.get('montant');
-  const motif = urlParams.get('motif');
-  const iban = urlParams.get('iban');
-  const bic = urlParams.get('bic');
-  const domiciliation = urlParams.get('domiciliation');
-  const userName = urlParams.get('user_name');
-  const userEmail = urlParams.get('user_email');
-  const dateParam = urlParams.get('date');
-
-  // Vérification du montant
-  if (!montantParam || isNaN(parseFloat(montantParam))) {
-    card.classList.add('error-sync');
-    card.querySelector('h2').textContent = "❌ Synchronisation Échouée";
-    montantDisplay.textContent = "Montant inconnu ou invalide.";
-    syncMessage.textContent = "Erreur: Le montant du virement n'a pas été transmis par le formulaire.";
-    return;
-  }
-
-  // Affichage des détails du virement
-  const montantNum = parseFloat(montantParam);
-  montantDisplay.textContent = formatCurrency(montantNum);
-  details.innerHTML = `
-    <p><strong>Motif :</strong> ${motif || '-'}</p>
-    <p><strong>IBAN :</strong> ${iban || '-'}</p>
-    <p><strong>BIC :</strong> ${bic || '-'}</p>
-    <p><strong>Domiciliation :</strong> ${domiciliation || '-'}</p>
-    <p><strong>Nom :</strong> ${userName || '-'}</p>
-    <p><strong>Email :</strong> ${userEmail || '-'}</p>
-    <p><strong>Date :</strong> ${dateParam || new Date().toLocaleDateString('fr-FR')}</p>
-  `;
-
-  try {
-    // Récupération utilisateur
-    const user = await getAndSetCurrentUser();
-    if (!user) throw new Error("Utilisateur non connecté ou non trouvé.");
-
-    // Calcul nouveau solde
-    const nouveauSolde = parseFloat((user.solde - montantNum).toFixed(2));
-    if (nouveauSolde < 0) throw new Error("Solde insuffisant pour ce virement.");
-
-    user.solde = nouveauSolde;
-
-    // Historique (antéchronologique)
-    if (!user.historique) user.historique = [];
-    user.historique.unshift({
-      date: new Date().toLocaleString('fr-FR'),
-      libelle: `Virement vers ${domiciliation || 'Bénéficiaire'}`,
-      montant: -montantNum,
-      type: 'debit'
-    });
-
-    // Sauvegarde
-    await updateCurrentUser(user);
-
-    syncMessage.textContent = `Le montant de ${formatCurrency(montantNum)} a été débité. Nouveau solde : ${formatCurrency(user.solde)}.`;
-
-  } catch (e) {
-    card.classList.remove('success-card');
-    card.classList.add('error-sync');
-    card.querySelector('h2').textContent = "❌ Transaction Échouée";
-    syncMessage.textContent = "Erreur: Le débit n'a pas été effectué. Raison : " + e.message;
-  }
-});
-</script>
-</body>
-</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APAY - Confirmation de virement</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
+
+  <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center space-x-2">
+      <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-6">
+    </div>
+    <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
+      <i class="fa-solid fa-bars" id="burger-icon"></i>
+    </button>
+  </div>
+
+  <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0"></div>
+
+  <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
+    <div>
+      <div class="flex items-center justify-between md:justify-start space-x-2 text-blue-600 font-bold text-2xl mb-8">
+        <div class="flex items-center space-x-2">
+          <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white text-lg shadow-sm">
+            <i class="fa-solid fa-wallet text-sm"></i>
+          </div>
+          <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-7">
+        </div>
+        <button onclick="toggleMenu()" class="md:hidden text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      
+      <nav class="space-y-1">
+        <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-chart-pie w-5 text-lg"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="virement.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-paper-plane w-5"></i>
+          <span>Faire un virement</span>
+        </a>
+        <a href="ajouter-beneficiaire.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-user-plus w-5"></i>
+          <span>Bénéficiaires</span>
+        </a>
+        <a href="historique.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-clock-rotate-left w-5"></i>
+          <span>Historique</span>
+        </a>
+        <a href="mes-cartes.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-credit-card w-5"></i>
+          <span>Mes cartes</span>
+        </a>
+        <a href="rib.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-building-columns w-5"></i>
+          <span>Mon RIB</span>
+        </a>
+        <a href="profil.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
+          <i class="fa-solid fa-circle-user w-5"></i>
+          <span>Mon Profil</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="mt-8 pt-4 border-t border-slate-100 space-y-4">
+      <div class="bg-slate-50 p-3 rounded-xl flex items-center space-x-3">
+        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+          <i class="fa-solid fa-headset text-sm"></i>
+        </div>
+        <div class="truncate">
+          <p class="text-xs text-slate-400 font-medium">Mon Conseiller</p>
+          <p id="sidebar-advisor" class="text-xs font-semibold text-slate-700 truncate">Chargement...</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left">
+        <i class="fa-solid fa-arrow-right-from-bracket w-5"></i>
+        <span>Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-4 md:p-8 max-w-xl mx-auto w-full flex flex-col justify-center items-center">
+    
+    <div id="status-icon-container" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs">
+      <i id="status-icon" class="fa-solid fa-circle-check"></i>
+    </div>
+
+    <h1 id="status-title" class="text-2xl font-bold text-slate-900 text-center tracking-tight">✅ Virement Enregistré et Confirmé !</h1>
+    <p id="status-subtitle" class="text-slate-500 text-sm text-center mt-1">Votre ordre de virement a été transmis. Une attestation a été envoyée par mail.</p>
+
+    <div id="confirmation-card" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm w-full mt-6 space-y-5 relative overflow-hidden">
+      <div id="card-accent" class="absolute top-0 inset-x-0 h-1.5 bg-emerald-500"></div>
+      
+      <div class="text-center py-2">
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Montant traité</span>
+        <h2 class="text-3xl font-bold text-red-500 mt-1" id="montant-traite">... €</h2>
+      </div>
+
+      <div id="details" class="border-t border-dashed border-slate-200 pt-4 space-y-3">
+        </div>
+
+      <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+        <p id="sync-message" class="text-xs font-medium text-slate-500">Le solde de votre compte est en cours d'ajustement...</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
+      <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2 shadow-xs">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Aller à mes comptes</span>
+      </a>
+      <a href="historique.html" class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>Voir l'historique</span>
+      </a>
+    </div>
+
+    <footer class="text-center text-xs text-slate-400 mt-8">
+      Mentions légales – Sécurité – Accessibilité – Plan du site
+    </footer>
+
+  </main>
+
+  <script>
+    // --- Fonction d'ouverture/fermeture du Slide Menu ---
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar-menu');
+      const overlay = document.getElementById('sidebar-overlay');
+      if(sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+      }
+    }
+
+    // --- Configuration Firebase ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc",
+      authDomain: "lastone-2ef2f.firebaseapp.com",
+      projectId: "lastone-2ef2f",
+      storageBucket: "lastone-2ef2f.firebasestorage.app",
+      messagingSenderId: "983919060318",
+      appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const currentUserId = localStorage.getItem('currentUserId');
+    if (!currentUserId) window.location.href = "index.html";
+
+    // Formatage monétaire local
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const montantDisplay = document.getElementById('montant-traite');
+      const syncMessage = document.getElementById('sync-message');
+      const detailsContainer = document.getElementById('details');
+
+      // Récupération des paramètres de l'URL transmis par le formulaire de virement
+      const urlParams = new URLSearchParams(window.location.search);
+      const montantParam = urlParams.get('montant');
+      const motif = urlParams.get('motif');
+      const iban = urlParams.get('iban');
+      const bic = urlParams.get('bic');
+      const domiciliation = urlParams.get('domiciliation');
+      const userName = urlParams.get('user_name');
+      const userEmail = urlParams.get('user_email');
+      const dateParam = urlParams.get('date');
+
+      // Charger les données de la barre latérale (Conseiller)
+      db.collection("users").doc(currentUserId).get().then((doc) => {
+        if(doc.exists) {
+          document.getElementById('sidebar-advisor').textContent = doc.data().advisor || 'Conseiller APAY';
+        }
+      });
+
+      // 1. Vérification stricte du montant reçu
+      if (!montantParam || isNaN(parseFloat(montantParam))) {
+        setErrorState("❌ Synchronisation Échouée", "Erreur: Le montant du virement n'a pas été transmis correctement par le formulaire.");
+        montantDisplay.textContent = "Inconnu";
+        return;
+      }
+
+      const montantNum = parseFloat(montantParam);
+      montantDisplay.textContent = formatCurrency(montantNum);
+
+      // 2. Injection et affichage stylisé des données
+      detailsContainer.innerHTML = `
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Bénéficiaire</span><span class="text-slate-800 font-semibold text-right">${userName || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Banque</span><span class="text-slate-800 font-semibold text-right">${domiciliation || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">IBAN</span><span class="text-slate-600 font-mono tracking-tighter text-right uppercase">${iban || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">BIC</span><span class="text-slate-600 font-mono text-right uppercase">${bic || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Motif</span><span class="text-slate-800 font-semibold text-right">${motif || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Email Contact</span><span class="text-slate-800 text-right text-xs">${userEmail || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Date d'effet</span><span class="text-slate-800 font-semibold text-right">${dateParam || new Date().toLocaleDateString('fr-FR')}</span></div>
+      `;
+
+      // 3. Mise à jour ou confirmation du statut de synchronisation
+      try {
+        syncMessage.innerHTML = `<i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> Le montant de ${formatCurrency(montantNum)} a été traité avec succès sur votre compte.`;
+      } catch (e) {
+        setErrorState("❌ Transaction Échouée", "Le débit n'a pas pu être validé. Raison : " + e.message);
+      }
+    });
+
+    // Fonction d'affichage en cas d'erreur
+    function setErrorState(title, message) {
+      document.getElementById('status-title').textContent = title;
+      document.getElementById('status-subtitle').textContent = "Veuillez vérifier les informations saisies ou contacter votre conseiller.";
+      document.getElementById('status-icon-container').className = "w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs";
+      document.getElementById('status-icon').className = "fa-solid fa-circle-xmark";
+      document.getElementById('card-accent').className = "absolute top-0 inset-x-0 h-1.5 bg-rose-500";
+      document.getElementById('sync-message').className = "text-xs font-semibold text-rose-600";
+      document.getElementById('sync-message').textContent = message;
+    }
+
+    function logout() { localStorage.removeItem('currentUserId'); window.location.href = "index.html"; }
+  </script>
+</body>
+</html>
