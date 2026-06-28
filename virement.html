@@ -14,30 +14,24 @@
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="shared.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Bouton Burger (Mobile) -->
   <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center space-x-2">
-      <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white text-sm"><i class="fa-solid fa-feather-pointed"></i></div>
-      <span class="tracking-tight text-slate-900 font-bold">APAY</span>
+      <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-6">
     </div>
-    <button onclick="toggleMenu()" aria-expanded="false" aria-controls="sidebar-menu" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
+    <button onclick="toggleMenu()" class="w-10 h-10 flex items-center justify-center text-slate-700 text-xl focus:outline-none">
       <i class="fa-solid fa-bars"></i>
     </button>
   </div>
 
-  <!-- Overlay -->
   <div id="sidebar-overlay" onclick="toggleMenu()" 
        class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0">
   </div>
 
-  <!-- Slide Menu -->
-  <aside id="sidebar-menu" aria-hidden="true"
-         class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
+  <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
     <div>
       <div class="flex items-center justify-between md:justify-start space-x-2 text-blue-600 font-bold text-2xl mb-8">
         <div class="flex items-center space-x-2">
@@ -50,17 +44,25 @@
       </div>
       <nav class="space-y-1">
         <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-chart-pie w-5"></i><span>Dashboard</span></a>
-        <a href="virement.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-paper-plane w-5"></i><span>Faire un virement</span></a>
+        <a href="virement.html" class="flex items-center space-x-3 bg-blue-50 text-blue-600 p-3 rounded-xl font-medium transition"><i class="fa-solid fa-paper-plane w-5"></i><span>Faire un virement</span></a>
         <a href="ajouter-beneficiaire.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-user-plus w-5"></i><span>Bénéficiaires</span></a>
         <a href="historique.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-clock-rotate-left w-5"></i><span>Historique</span></a>
-        <a href="mes-cartes.html" class="flex items-center space-x-3 bg-blue-50 text-blue-600 p-3 rounded-xl font-medium transition"><i class="fa-solid fa-credit-card w-5"></i><span>Mes cartes</span></a>
+        <a href="mes-cartes.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-credit-card w-5"></i><span>Mes cartes</span></a>
         <a href="rib.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-building-columns w-5"></i><span>Mon RIB</span></a>
         <a href="profil.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 p-3 rounded-xl transition"><i class="fa-solid fa-circle-user w-5"></i><span>Mon Profil</span></a>
       </nav>
     </div>
-    </div>
 
-    <div class="mt-8 pt-4 border-t border-slate-100">
+    <div class="mt-8 pt-4 border-t border-slate-100 space-y-4">
+      <div class="bg-slate-50 p-3 rounded-xl flex items-center space-x-3">
+        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+          <i class="fa-solid fa-headset text-sm"></i>
+        </div>
+        <div class="truncate">
+          <p class="text-xs text-slate-400 font-medium">Mon Conseiller</p>
+          <p id="sidebar-advisor" class="text-xs font-semibold text-slate-700 truncate">Chargement...</p>
+        </div>
+      </div>
       <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left">
         <i class="fa-solid fa-arrow-right-from-bracket w-5"></i>
         <span>Déconnexion</span>
@@ -88,7 +90,7 @@
     <form id="virement-form" onsubmit="sendEmail(event)" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 space-y-5 shadow-sm">
       
       <div>
-        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Montant</label>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Montant (€)</label>
         <div class="relative">
           <input type="number" name="montant" id="virement-montant" placeholder="Ex : 1000" min="1" step="0.01" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 font-bold text-lg text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
@@ -114,7 +116,7 @@
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Domiciliation</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Domiciliation / Banque</label>
           <input type="text" name="domiciliation" id="virement-domiciliation" placeholder="Nom de la banque" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
@@ -122,7 +124,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Nom et Prénom</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Nom du Bénéficiaire</label>
           <input type="text" name="user_name" placeholder="Ex : Jean Dupont" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
@@ -152,19 +154,17 @@
 
   </main>
 
-   <script>
+  <script>
     // --- Fonction d'ouverture/fermeture du Slide Menu ---
     function toggleMenu() {
       const sidebar = document.getElementById('sidebar-menu');
       const overlay = document.getElementById('sidebar-overlay');
       
       if(sidebar.classList.contains('-translate-x-full')) {
-        // Ouvrir
         sidebar.classList.remove('-translate-x-full');
         overlay.classList.remove('hidden');
         setTimeout(() => overlay.classList.add('opacity-100'), 10);
       } else {
-        // Fermer
         sidebar.classList.add('-translate-x-full');
         overlay.classList.remove('opacity-100');
         setTimeout(() => overlay.classList.add('hidden'), 300);
@@ -172,7 +172,23 @@
     }
 
     // --- Configuration Firebase ---
-    // Initialisation immédiate d'EmailJS avec ta clé publique
+    const firebaseConfig = {
+      apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc",
+      authDomain: "lastone-2ef2f.firebaseapp.com",
+      projectId: "lastone-2ef2f",
+      storageBucket: "lastone-2ef2f.firebasestorage.app",
+      messagingSenderId: "983919060318",
+      appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const currentUserId = localStorage.getItem('currentUserId');
+    if (!currentUserId) {
+      window.location.href = "index.html";
+    }
+
+    // Initialisation immédiate d'EmailJS avec votre clé publique
     emailjs.init("Mw2rvwAZxMJ2RHQ8n");
 
     // Variable locale pour retenir le solde actuel de l'utilisateur
@@ -181,12 +197,22 @@
     // Remplir automatiquement la date du jour par défaut
     document.getElementById('virement-date').value = new Date().toISOString().split('T')[0];
 
-    // Écoute en temps réel du solde de l'utilisateur (Synchronisé via shared.js / currentUserId)
+    // Fonction de formatage locale en Euros
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
+
+    // Écoute en temps réel du solde et conseiller de l'utilisateur
     db.collection("users").doc(currentUserId).onSnapshot((doc) => {
       if (doc.exists) {
-        currentBalance = doc.data().balance || 0;
-        // Utilisation de la fonction globale formatMoney() issue de shared.js
+        const userData = doc.data();
+        currentBalance = userData.balance || 0;
         document.getElementById('balance-badge').textContent = formatMoney(currentBalance);
+        document.getElementById('sidebar-advisor').textContent = userData.advisor || 'Conseiller APAY';
       }
     });
 
@@ -212,13 +238,16 @@
         // 2. Envoi du formulaire via EmailJS
         await emailjs.sendForm("service_mnehge8", "template_y5wqgt8", form);
 
-        // 3. Préparation de la nouvelle transaction pour l'historique
+        // 3. Préparation de la nouvelle transaction complète pour l'historique et la confirmation
         const newTransaction = {
           id: "TX-" + Math.floor(Math.random() * 10000000),
           type: "Virement",
           label: `Virement vers ${formData.get("domiciliation")} - ${formData.get("motif")}`,
           amount: -montant,
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          beneficiaryName: formData.get("user_name"),
+          iban: formData.get("iban").toUpperCase(),
+          bankName: formData.get("domiciliation")
         };
 
         // 4. Débit et mise à jour de l'historique sur Firestore v8
@@ -227,12 +256,8 @@
           history: firebase.firestore.FieldValue.arrayUnion(newTransaction)
         });
 
-        // 5. Redirection vers la page de confirmation avec les paramètres URL
-        const params = new URLSearchParams();
-        for (const pair of formData.entries()) {
-          params.append(pair[0], pair[1]);
-        }
-        window.location.href = "confirmation.html?" + params.toString();
+        // 5. Redirection immédiate vers la page de confirmation
+        window.location.href = "confirmation.html";
 
       } catch (error) {
         alert("❌ Une erreur est survenue lors de l'opération : " + (error.message || JSON.stringify(error)));
@@ -240,6 +265,11 @@
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>✅ Envoyer le virement</span>`;
       }
+    }
+
+    function logout() {
+      localStorage.removeItem('currentUserId');
+      window.location.href = "index.html";
     }
   </script>
 </body>
