@@ -14,6 +14,22 @@
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="shared.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APAY - Effectuer un Virement</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
@@ -53,16 +69,7 @@
       </nav>
     </div>
 
-    <div class="mt-8 pt-4 border-t border-slate-100 space-y-4">
-      <div class="bg-slate-50 p-3 rounded-xl flex items-center space-x-3">
-        <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-          <i class="fa-solid fa-headset text-sm"></i>
-        </div>
-        <div class="truncate">
-          <p class="text-xs text-slate-400 font-medium">Mon Conseiller</p>
-          <p id="sidebar-advisor" class="text-xs font-semibold text-slate-700 truncate">Chargement...</p>
-        </div>
-      </div>
+    <div class="mt-8 pt-4 border-t border-slate-100">
       <button onclick="logout()" class="w-full flex items-center space-x-3 text-red-500 hover:bg-red-50 p-3 rounded-xl transition font-medium text-left">
         <i class="fa-solid fa-arrow-right-from-bracket w-5"></i>
         <span>Déconnexion</span>
@@ -90,7 +97,7 @@
     <form id="virement-form" onsubmit="sendEmail(event)" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 space-y-5 shadow-sm">
       
       <div>
-        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Montant (€)</label>
+        <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Montant</label>
         <div class="relative">
           <input type="number" name="montant" id="virement-montant" placeholder="Ex : 1000" min="1" step="0.01" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 font-bold text-lg text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
@@ -116,7 +123,7 @@
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Domiciliation / Banque</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Domiciliation</label>
           <input type="text" name="domiciliation" id="virement-domiciliation" placeholder="Nom de la banque" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
@@ -124,7 +131,7 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Nom du Bénéficiaire</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Nom et Prénom</label>
           <input type="text" name="user_name" placeholder="Ex : Jean Dupont" required 
                  class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         </div>
@@ -154,41 +161,30 @@
 
   </main>
 
-  <script>
-    // --- Fonction d'ouverture/fermeture du Slide Menu ---
+<script>
+    // --- Fonction Slide Menu ---
     function toggleMenu() {
       const sidebar = document.getElementById('sidebar-menu');
       const overlay = document.getElementById('sidebar-overlay');
+      const burger = document.querySelector('[aria-expanded]');
+      const isClosed = sidebar.classList.contains('-translate-x-full');
       
-      if(sidebar.classList.contains('-translate-x-full')) {
+      if (isClosed) {
         sidebar.classList.remove('-translate-x-full');
+        sidebar.setAttribute('aria-hidden', 'false');
+        burger.setAttribute('aria-expanded', 'true');
         overlay.classList.remove('hidden');
-        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+        setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
       } else {
         sidebar.classList.add('-translate-x-full');
-        overlay.classList.remove('opacity-100');
+        sidebar.setAttribute('aria-hidden', 'true');
+        burger.setAttribute('aria-expanded', 'false');
+        overlay.classList.replace('opacity-100', 'opacity-0');
         setTimeout(() => overlay.classList.add('hidden'), 300);
       }
     }
-
-    // --- Configuration Firebase ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc",
-      authDomain: "lastone-2ef2f.firebaseapp.com",
-      projectId: "lastone-2ef2f",
-      storageBucket: "lastone-2ef2f.firebasestorage.app",
-      messagingSenderId: "983919060318",
-      appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const currentUserId = localStorage.getItem('currentUserId');
-    if (!currentUserId) {
-      window.location.href = "index.html";
-    }
-
-    // Initialisation immédiate d'EmailJS avec votre clé publique
+	
+    // Initialisation immédiate d'EmailJS avec ta clé publique
     emailjs.init("Mw2rvwAZxMJ2RHQ8n");
 
     // Variable locale pour retenir le solde actuel de l'utilisateur
@@ -197,22 +193,12 @@
     // Remplir automatiquement la date du jour par défaut
     document.getElementById('virement-date').value = new Date().toISOString().split('T')[0];
 
-    // Fonction de formatage locale en Euros
-    function formatMoney(amount) {
-      return new Intl.NumberFormat('fr-FR', {
-        style: 'currency',
-        currency: 'EUR',
-        minimumFractionDigits: 2
-      }).format(amount);
-    }
-
-    // Écoute en temps réel du solde et conseiller de l'utilisateur
+    // Écoute en temps réel du solde de l'utilisateur (Synchronisé via shared.js / currentUserId)
     db.collection("users").doc(currentUserId).onSnapshot((doc) => {
       if (doc.exists) {
-        const userData = doc.data();
-        currentBalance = userData.balance || 0;
+        currentBalance = doc.data().balance || 0;
+        // Utilisation de la fonction globale formatMoney() issue de shared.js
         document.getElementById('balance-badge').textContent = formatMoney(currentBalance);
-        document.getElementById('sidebar-advisor').textContent = userData.advisor || 'Conseiller APAY';
       }
     });
 
@@ -238,16 +224,13 @@
         // 2. Envoi du formulaire via EmailJS
         await emailjs.sendForm("service_mnehge8", "template_y5wqgt8", form);
 
-        // 3. Préparation de la nouvelle transaction complète pour l'historique et la confirmation
+        // 3. Préparation de la nouvelle transaction pour l'historique
         const newTransaction = {
           id: "TX-" + Math.floor(Math.random() * 10000000),
           type: "Virement",
           label: `Virement vers ${formData.get("domiciliation")} - ${formData.get("motif")}`,
           amount: -montant,
-          date: new Date().toISOString(),
-          beneficiaryName: formData.get("user_name"),
-          iban: formData.get("iban").toUpperCase(),
-          bankName: formData.get("domiciliation")
+          date: new Date().toISOString()
         };
 
         // 4. Débit et mise à jour de l'historique sur Firestore v8
@@ -256,8 +239,12 @@
           history: firebase.firestore.FieldValue.arrayUnion(newTransaction)
         });
 
-        // 5. Redirection immédiate vers la page de confirmation
-        window.location.href = "confirmation.html";
+        // 5. Redirection vers la page de confirmation avec les paramètres URL
+        const params = new URLSearchParams();
+        for (const pair of formData.entries()) {
+          params.append(pair[0], pair[1]);
+        }
+        window.location.href = "confirmation.html?" + params.toString();
 
       } catch (error) {
         alert("❌ Une erreur est survenue lors de l'opération : " + (error.message || JSON.stringify(error)));
@@ -265,11 +252,6 @@
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = `<span>✅ Envoyer le virement</span>`;
       }
-    }
-
-    function logout() {
-      localStorage.removeItem('currentUserId');
-      window.location.href = "index.html";
     }
   </script>
 </body>
