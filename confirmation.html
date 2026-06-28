@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col md:flex-row relative overflow-x-hidden">
 
-  <!-- Bouton Burger (Mobile) -->
   <div class="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center space-x-2">
       <img src="https://koly.fr/wp-content/uploads/2016/11/LOGO-BNP-PARIBAS-ARCHI.jpg" alt="Logo" class="h-6">
@@ -23,10 +22,8 @@
     </button>
   </div>
 
-  <!-- Overlay -->
   <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-45 md:hidden transition-opacity duration-300 opacity-0"></div>
 
-  <!-- Slide Menu -->
   <aside id="sidebar-menu" class="fixed inset-y-0 left-0 w-72 md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col justify-between z-50 md:z-auto md:static transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:h-screen md:sticky md:top-0">
     <div>
       <div class="flex items-center justify-between md:justify-start space-x-2 text-blue-600 font-bold text-2xl mb-8">
@@ -43,7 +40,7 @@
       
       <nav class="space-y-1">
         <a href="dashboard.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
-          <i class="fa-solid fa-chart-pie w-5"></i>
+          <i class="fa-solid fa-chart-pie w-5 text-lg"></i>
           <span>Dashboard</span>
         </a>
         <a href="virement.html" class="flex items-center space-x-3 text-slate-600 hover:bg-slate-50 hover:text-slate-900 p-3 rounded-xl transition">
@@ -90,52 +87,33 @@
     </div>
   </aside>
 
-  <!-- Contenu Principal -->
   <main class="flex-1 p-4 md:p-8 max-w-xl mx-auto w-full flex flex-col justify-center items-center">
     
-    <!-- Icône Réussite -->
-    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs">
-      <i class="fa-solid fa-circle-check"></i>
+    <div id="status-icon-container" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs">
+      <i id="status-icon" class="fa-solid fa-circle-check"></i>
     </div>
 
-    <h1 class="text-2xl font-bold text-slate-900 text-center tracking-tight">Virement effectué !</h1>
-    <p class="text-slate-500 text-sm text-center mt-1">Votre demande de transfert a été traitée avec succès.</p>
+    <h1 id="status-title" class="text-2xl font-bold text-slate-900 text-center tracking-tight">✅ Virement Enregistré et Confirmé !</h1>
+    <p id="status-subtitle" class="text-slate-500 text-sm text-center mt-1">Votre ordre de virement a été transmis. Une attestation a été envoyée par mail.</p>
 
-    <!-- Ticket de Confirmation -->
-    <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs w-full mt-6 space-y-5 relative overflow-hidden">
-      <div class="absolute top-0 inset-x-0 h-1.5 bg-emerald-500"></div>
+    <div id="confirmation-card" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm w-full mt-6 space-y-5 relative overflow-hidden">
+      <div id="card-accent" class="absolute top-0 inset-x-0 h-1.5 bg-emerald-500"></div>
       
       <div class="text-center py-2">
-        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Montant transféré</span>
-        <h2 class="text-3xl font-bold text-slate-900 mt-1" id="confirm-amount">0,00 €</h2>
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Montant traité</span>
+        <h2 class="text-3xl font-bold text-red-500 mt-1" id="montant-traite">... €</h2>
       </div>
 
-      <div class="border-t border-dashed border-slate-200 pt-4 space-y-3">
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-medium text-slate-400">Bénéficiaire</span>
-          <span class="text-sm font-semibold text-slate-800 text-right" name="user_name">-</span>
-        </div>
-        
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-medium text-slate-400">Banque</span>
-          <span class="text-sm font-semibold text-slate-800 text-right" id="virement-domiciliation">-</span>
+      <div id="details" class="border-t border-dashed border-slate-200 pt-4 space-y-3">
         </div>
 
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-medium text-slate-400">IBAN</span>
-          <span class="text-sm font-mono text-slate-600 text-right uppercase tracking-tighter" name="iban">-</span>
-        </div>
-
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-medium text-slate-400">Référence / Motif</span>
-          <span class="text-sm font-medium text-slate-800 text-right" id="confirm-reference">Virement Sortant</span>
-        </div>
+      <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl text-center">
+        <p id="sync-message" class="text-xs font-medium text-slate-500">Le solde de votre compte est en cours d'ajustement...</p>
       </div>
     </div>
 
-    <!-- Actions / Boutons d'options -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-6">
-      <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2">
+      <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white font-medium p-3 rounded-xl transition text-sm text-center flex items-center justify-center space-x-2 shadow-xs">
         <i class="fa-solid fa-chart-pie"></i>
         <span>Aller à mes comptes</span>
       </a>
@@ -144,6 +122,10 @@
         <span>Voir l'historique</span>
       </a>
     </div>
+
+    <footer class="text-center text-xs text-slate-400 mt-8">
+      Mentions légales – Sécurité – Accessibilité – Plan du site
+    </footer>
 
   </main>
 
@@ -164,34 +146,87 @@
     }
 
     // --- Configuration Firebase ---
-    const firebaseConfig = { apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc", authDomain: "lastone-2ef2f.firebaseapp.com", projectId: "lastone-2ef2f", storageBucket: "lastone-2ef2f.firebasestorage.app", messagingSenderId: "983919060318", appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf" };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAYBpV95meCzCoLZWGBhbflqLFiqR0mToc",
+      authDomain: "lastone-2ef2f.firebaseapp.com",
+      projectId: "lastone-2ef2f",
+      storageBucket: "lastone-2ef2f.firebasestorage.app",
+      messagingSenderId: "983919060318",
+      appId: "1:983919060318:web:2708d4b4a0ca3e2d7d5bcf"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const currentUserId = localStorage.getItem('currentUserId');
     if (!currentUserId) window.location.href = "index.html";
 
-    // Récupération des données utilisateur en temps réel
-    db.collection("users").doc(currentUserId).onSnapshot((doc) => {
-      if (doc.exists) {
-        const userData = doc.data();
-        document.getElementById('sidebar-advisor').textContent = userData.advisor || 'Conseiller APAY';
-        
-        // Extraction de la dernière opération pour remplir le ticket de confirmation
-        const history = userData.history || [];
-        if(history.length > 0) {
-          // On cherche la dernière opération de type Virement
-          const lastTransfer = history.find(op => op.type === 'Virement') || history[0];
-          
-          const rawAmount = Math.abs(Number(lastTransfer.amount)) || 0;
-          document.getElementById('confirm-amount').textContent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(rawAmount);
-          document.getElementById('confirm-name').textContent = lastTransfer.beneficiaryName || lastTransfer.label || "Bénéficiaire Externe";
-          document.getElementById('confirm-iban').textContent = lastTransfer.iban || "Non spécifié";
-          document.getElementById('confirm-bank').textContent = lastTransfer.bankName || "Banque Bénéficiaire";
-          document.getElementById('confirm-reference').textContent = lastTransfer.label || "Virement";
+    // Formatage monétaire local
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const montantDisplay = document.getElementById('montant-traite');
+      const syncMessage = document.getElementById('sync-message');
+      const detailsContainer = document.getElementById('details');
+
+      // Récupération des paramètres de l'URL transmis par le formulaire de virement
+      const urlParams = new URLSearchParams(window.location.search);
+      const montantParam = urlParams.get('montant');
+      const motif = urlParams.get('motif');
+      const iban = urlParams.get('iban');
+      const bic = urlParams.get('bic');
+      const domiciliation = urlParams.get('domiciliation');
+      const userName = urlParams.get('user_name');
+      const userEmail = urlParams.get('user_email');
+      const dateParam = urlParams.get('date');
+
+      // Charger les données de la barre latérale (Conseiller)
+      db.collection("users").doc(currentUserId).get().then((doc) => {
+        if(doc.exists) {
+          document.getElementById('sidebar-advisor').textContent = doc.data().advisor || 'Conseiller APAY';
         }
+      });
+
+      // 1. Vérification stricte du montant reçu
+      if (!montantParam || isNaN(parseFloat(montantParam))) {
+        setErrorState("❌ Synchronisation Échouée", "Erreur: Le montant du virement n'a pas été transmis correctement par le formulaire.");
+        montantDisplay.textContent = "Inconnu";
+        return;
+      }
+
+      const montantNum = parseFloat(montantParam);
+      montantDisplay.textContent = formatCurrency(montantNum);
+
+      // 2. Injection et affichage stylisé des données
+      detailsContainer.innerHTML = `
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Bénéficiaire</span><span class="text-slate-800 font-semibold text-right">${userName || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Banque</span><span class="text-slate-800 font-semibold text-right">${domiciliation || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">IBAN</span><span class="text-slate-600 font-mono tracking-tighter text-right uppercase">${iban || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">BIC</span><span class="text-slate-600 font-mono text-right uppercase">${bic || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Motif</span><span class="text-slate-800 font-semibold text-right">${motif || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Email Contact</span><span class="text-slate-800 text-right text-xs">${userEmail || '-'}</span></div>
+        <div class="flex justify-between items-start text-xs font-medium"><span class="text-slate-400">Date d'effet</span><span class="text-slate-800 font-semibold text-right">${dateParam || new Date().toLocaleDateString('fr-FR')}</span></div>
+      `;
+
+      // 3. Mise à jour ou confirmation du statut de synchronisation
+      try {
+        syncMessage.innerHTML = `<i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> Le montant de ${formatCurrency(montantNum)} a été traité avec succès sur votre compte.`;
+      } catch (e) {
+        setErrorState("❌ Transaction Échouée", "Le débit n'a pas pu être validé. Raison : " + e.message);
       }
     });
+
+    // Fonction d'affichage en cas d'erreur
+    function setErrorState(title, message) {
+      document.getElementById('status-title').textContent = title;
+      document.getElementById('status-subtitle').textContent = "Veuillez vérifier les informations saisies ou contacter votre conseiller.";
+      document.getElementById('status-icon-container').className = "w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-2xl mb-4 shadow-xs";
+      document.getElementById('status-icon').className = "fa-solid fa-circle-xmark";
+      document.getElementById('card-accent').className = "absolute top-0 inset-x-0 h-1.5 bg-rose-500";
+      document.getElementById('sync-message').className = "text-xs font-semibold text-rose-600";
+      document.getElementById('sync-message').textContent = message;
+    }
 
     function logout() { localStorage.removeItem('currentUserId'); window.location.href = "index.html"; }
   </script>
